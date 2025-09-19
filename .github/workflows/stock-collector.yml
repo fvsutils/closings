@@ -1,0 +1,31 @@
+name: Stock Data Collector
+
+on:
+  schedule:
+    # Executará às 18:05 (horário UTC) todos os dias úteis
+    # Ajuste conforme necessário para seu fuso horário
+    - cron: '5 18 * * 1-5'
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  collect-stock-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run stock collector
+      env:
+        TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+        TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        BRAPI_API_KEY: ${{ secrets.BRAPI_API_KEY }}
+      run: node src/collect-stocks.js

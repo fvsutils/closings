@@ -1,0 +1,26 @@
+{
+  "name": "stock-data-collector",
+  "version": "1.0.0",
+  "description": "Coleta dados de ações e FIIs da B3 via brapi.dev",
+  "main": "src/collect-stocks.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/collect-stocks.js",
+    "test": "node src/test-connection.js"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.5.6",
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.4.5"
+  },
+  "keywords": [
+    "b3",
+    "stocks",
+    "fiis",
+    "brapi",
+    "turso",
+    "github-actions"
+  ],
+  "author": "",
+  "license": "MIT"
+}
