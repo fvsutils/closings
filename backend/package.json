@@ -12,6 +12,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "@libsql/client": "^0.15.15",
     "cors": "^2.8.5",
