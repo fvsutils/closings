@@ -5,17 +5,19 @@ import closingsRouter from './routes/closings.js';
 import { getTursoClient } from './config/database.js';
 import { authenticateApiKey } from './middleware/auth.js';
 
-// Carregar variáveis de ambiente
 dotenv.config();
 
-const app = express();
-const PORT = process.env.PORT || 3001;
+console.log('🔧 Inicializando aplicação...');
+console.log('📦 NODE_ENV:', process.env.NODE_ENV);
+console.log('🚪 PORT do ambiente:', process.env.PORT);
 
-// Middleware
+const app = express();
+const PORT = Number(process.env.PORT) || 3001;
+
 app.use(cors());
 app.use(express.json());
 
-// Log de requisições (desenvolvimento)
+// Log de requisições
 if (process.env.NODE_ENV !== 'production') {
   app.use((req: Request, res: Response, next: NextFunction) => {
     console.log(`${req.method} ${req.path}`);
@@ -23,7 +25,7 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Health check
+// Rotas públicas
 app.get('/', (req: Request, res: Response) => {
   res.json({ 
     message: 'Closings API',
@@ -49,12 +51,12 @@ app.get('/health', async (req: Request, res: Response) => {
   }
 });
 
-// Rotas
+// Aplicar autenticação em todas as rotas /api
 app.use('/api', authenticateApiKey);
 
+// Rotas protegidas
 app.use('/api/closings', closingsRouter);
 
-// Rota para listar todos os códigos de ativos
 app.get('/api/stocks', async (req: Request, res: Response) => {
   try {
     const turso = getTursoClient();
@@ -89,8 +91,18 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-// Inicializar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+// Inicializar servidor - IMPORTANTE: bind em 0.0.0.0
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Servidor rodando em http://0.0.0.0:${PORT}`);
   console.log(`📊 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔐 Autenticação: ${process.env.API_KEY ? 'Ativada' : '⚠️  NÃO CONFIGURADA'}`);
+});
+
+server.on('error', (error: any) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`❌ Porta ${PORT} já está em uso`);
+  } else {
+    console.error('❌ Erro ao iniciar servidor:', error);
+  }
+  process.exit(1);
 });
